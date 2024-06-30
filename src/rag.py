@@ -79,5 +79,11 @@ if __name__ == "__main__":
     )
     openai_client = OpenAI()
     rag = RagAssistant(openai_client, qdrant_client)
-    answer = rag.query("Qu'est ce que la multiplication ?")
-    print(answer)
+
+    while True:
+        user_query = input("Posez votre question (ou tapez 'exit' pour quitter) : ")
+        if user_query.lower() == 'exit':
+            print("Au revoir!")
+            break
+        answer = rag.query(user_query)
+        print(f"Réponse: {answer}")
