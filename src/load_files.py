@@ -4,23 +4,21 @@ import uuid
 from typing import Any
 from qdrant_client import QdrantClient
 from qdrant_client.http import models as rest
-from params import EMBEDDING_MODEL, OPENAI_KEY
-import os
 
-os.environ["OPENAI_API_KEY"] = OPENAI_KEY
-openai_client = OpenAI()
 
-def load_and_chunk_file(file_path: str):
+def load_and_chunk_file(file_path: str, embedding_model:str, openai_client: OpenAI) -> list:
     """Load a pdf file and split it into chunks by page."""
     loader = PyPDFLoader(str(file_path))
     pages = loader.load_and_split()
+    
     return [
         {
             "content": page.page_content,
             "source": page.metadata["source"],
             "page_number": page.metadata["page"],
             "embedding": openai_client.embeddings.create(
-                input=[page.page_content], model=EMBEDDING_MODEL
+                input=[page.page_content], 
+                model=embedding_model
             )
             .data[0]
             .embedding,
@@ -44,15 +42,15 @@ def save_chunks_to_collection(
             ],
         )
 
-def store_files_to_collection(collection_name: str, files: list[str]):
+def store_files_to_collection(
+    collection_name: str, 
+    files: list[str], 
+    embedding_model:str, 
+    client: QdrantClient, 
+    openai_client: OpenAI
+    ) -> None:
     """Load pdf files, chunk them, and save them to a qdrant collection."""
-    qdrant_client = QdrantClient(
-        host="localhost",
-        prefer_grpc=True,
-    )
+    
     for file_path in files:
-        chunks = load_and_chunk_file(file_path)
-        save_chunks_to_collection(qdrant_client, collection_name, chunks)
-
-if __name__ == "__main__":
-    store_files_to_collection("tuto_rag", ["cours_maths.pdf"])
+        chunks = load_and_chunk_file(file_path, embedding_model, openai_client)
+        save_chunks_to_collection(client, collection_name, chunks)
