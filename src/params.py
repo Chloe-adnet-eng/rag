@@ -1,21 +1,12 @@
-#%%
-from pydantic_settings import BaseSettings
-#%%
-class DatabaseSettings(BaseSettings):
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Variables(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env")
+
     OPENAI_API_KEY: str
-    EMBEDDING_MODEL: str
-    COLLECTION_NAME: str
-    OPEN_AI_EMBEDDINGS_SIZE: int
-    TOP_VECTOR_SEARCH: int
+    
+def get_variables() -> Variables:
+    return Variables()
 
-    class Config:
-        env_file = ".env"
 
-database_settings = DatabaseSettings()
-OPENAI_KEY = database_settings.OPENAI_API_KEY
-EMBEDDING_MODEL = database_settings.EMBEDDING_MODEL
-COLLECTION_NAME = database_settings.COLLECTION_NAME
-OPEN_AI_EMBEDDINGS_SIZE = database_settings.OPEN_AI_EMBEDDINGS_SIZE
-TOP_VECTOR_SEARCH = database_settings.TOP_VECTOR_SEARCH
-
-# %%

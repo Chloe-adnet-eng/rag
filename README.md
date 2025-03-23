@@ -1,22 +1,13 @@
 # rag
 > This project is my first rag based on maths lessons for students
 
-## Project requirements
+## 1 Project requirements
+
+### Fill your .env with the followings variables 
+
+- OPENAI_API_KEY
 
 ### Pyenv and `Python 3.11.6`
-
-- Install [pyenv](https://github.com/pyenv/pyenv) to manage your Python versions and virtual environments:
-  ```bash
-  curl -sSL https://pyenv.run | bash
-  ```
-  - If you are on MacOS and experiencing errors on python install with pyenv, follow this [comment](https://github.com/pyenv/pyenv/issues/1740#issuecomment-738749988)
-  - Add these lines to your `~/.bashrc` or `~/.zshrc` to be able to activate `pyenv virtualenv`:
-      ```bash
-      eval "$(pyenv init -)"
-      eval "$(pyenv virtualenv-init -)"
-      eval "$(pyenv init --path)"
-      ```
-  - Restart your shell
 
 - Install the right version of `Python` with `pyenv`:
   ```bash
@@ -29,29 +20,12 @@
   ```bash
   curl -sSL https://install.python-poetry.org | python - --version 1.7.0
   ```
-  *If you have not previously installed any Python version, you may need to set your global Python version before installing Poetry:*
-    ```bash
-    pyenv global 3.11.6
-    ```
 
-## Installation
+
+## 2 Installation
 
 ### Python virtual environment and dependencies
 
-1. Create a `pyenv` virtual environment and link it to your project folder:
-    ```bash
-    pyenv virtualenv 3.11.6 myfirstrag
-    pyenv local myfirstrag
-    ```
-    *Now, every time you are in your project directory your virtualenv will be activated!*
-
-
-2. Install dependencies with `Poetry`:
-    ```bash
-    poetry install --no-root
-    ```
-
-Steps 1. and 2. can also be done in one command:
 ```bash
 make install
 ```
@@ -62,55 +36,25 @@ make install
 poetry run pre-commit install
 ```
 
-## Testing
+## Initiate project 
 
-To run unit tests, run `pytest` with:
-```bash
-pytest tests --cov src
-```
-or
-```bash
-make test
-```
+### Create docker image for qdrant collection 
 
-## Formatting and static analysis
-
-### Code formatting with `ruff`
-
-To check code formatting, run `ruff format` with:
 ```bash
-ruff format --check .
-```
-or
-```bash
-make format-check
+docker run -p 6333:6333 -p 6334:6334 \
+    -v $(pwd)/qdrant_storage:/qdrant/storage:z \
+    qdrant/qdrant
 ```
 
-You can also [integrate it to your IDE](https://docs.astral.sh/ruff/integrations/) to reformat
-your code each time you save a file.
+### 3 Launch rag
 
-### Static analysis with `ruff`
+1. Create qdrant vectorial collection named `math_report` and fill it with pdf embeded informations 
+2. Launch rag with open ai client 
 
-To run static analysis, run `ruff` with:
 ```bash
-ruff check src tests
-```
-or
-```bash
-make lint-check
+python main.py
 ```
 
-To run static analysis and to apply auto-fixes, run `ruff` with:
-```bash
-make lint-fix
-```
-### Type checking with `mypy`
+### Clik on web UI for qdrant collection visualisation
 
-To type check your code, run `mypy` with:
-```bash
-mypy src --explicit-package-bases --namespace-packages
-```
-or
-```bash
-make type-check
-```
+Link : http://localhost:6333/dashboard

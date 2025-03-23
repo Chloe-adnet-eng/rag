@@ -1,3 +1,8 @@
 qdrant_storage.
 qdrant_storage/
 .DS_Store
+.coverage
+.python-version
+src/__pycache__/
+tests-results.xml
+coverage.xml
