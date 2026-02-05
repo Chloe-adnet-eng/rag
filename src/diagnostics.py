@@ -20,7 +20,7 @@ class ChunkingDiagnostics:
         chunks_by_page: Number of chunks per page (if available).
     """
 
-    total_chunks: int
+    total_chunks: int | None
     avg_chunk_size: float
     min_chunk_size: int
     max_chunk_size: int

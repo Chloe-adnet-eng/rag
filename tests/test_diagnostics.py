@@ -3,7 +3,6 @@
 from unittest.mock import MagicMock, Mock
 
 import pytest
-from openai import OpenAI
 from qdrant_client import QdrantClient
 
 from src.diagnostics import (
@@ -23,7 +22,13 @@ def mock_qdrant_client() -> MagicMock:
 @pytest.fixture()
 def mock_openai_client() -> MagicMock:
     """Create a mock OpenAI client."""
-    return MagicMock(spec=OpenAI)
+    client = MagicMock()
+    # Mock embeddings.create method
+    mock_embedding_response = Mock()
+    mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
+    mock_embedding_response.usage = Mock(total_tokens=10)
+    client.embeddings.create.return_value = mock_embedding_response
+    return client
 
 
 @pytest.fixture()
@@ -183,11 +188,6 @@ class TestEvaluateRetrievalQuality:
         """Test successful retrieval quality evaluation."""
         test_queries = ["What is calculus?", "Explain derivatives"]
 
-        # Mock embeddings
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
-
         # Mock search results
         mock_result = Mock()
         mock_result.payload = {"content": "Some content"}
@@ -219,10 +219,6 @@ class TestEvaluateRetrievalQuality:
         """Test retrieval evaluation with no search results."""
         test_queries = ["Unknown query"]
 
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
-
         mock_qdrant_client.search.return_value = []
 
         result = diagnostics.evaluate_retrieval_quality(
@@ -244,11 +240,6 @@ class TestProfilePerformance:
     ) -> None:
         """Test successful performance profiling."""
         test_queries = ["What is calculus?"]
-
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
-        mock_embedding_response.usage = Mock(total_tokens=10)
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
 
         mock_qdrant_client.search.return_value = []
 
@@ -277,11 +268,6 @@ class TestProfilePerformance:
     ) -> None:
         """Test performance profiling with multiple iterations."""
         test_queries = ["Query 1", "Query 2"]
-
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
-        mock_embedding_response.usage = Mock(total_tokens=20)
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
 
         mock_qdrant_client.search.return_value = []
 
@@ -314,12 +300,6 @@ class TestGenerateDiagnosticReport:
             Mock(payload={"content": "x" * 500, "page_number": 1}),
         ]
         mock_qdrant_client.scroll.return_value = (mock_points, None)
-
-        # Mock embeddings
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1, 0.2, 0.3])]
-        mock_embedding_response.usage = Mock(total_tokens=10)
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
 
         # Mock search
         mock_qdrant_client.search.return_value = []
@@ -355,11 +335,6 @@ class TestGenerateDiagnosticReport:
         mock_collection.points_count = 1
         mock_qdrant_client.get_collection.return_value = mock_collection
         mock_qdrant_client.scroll.return_value = ([], None)
-
-        mock_embedding_response = Mock()
-        mock_embedding_response.data = [Mock(embedding=[0.1])]
-        mock_embedding_response.usage = Mock(total_tokens=5)
-        mock_openai_client.embeddings.create.return_value = mock_embedding_response
         mock_qdrant_client.search.return_value = []
 
         report = diagnostics.generate_diagnostic_report(test_queries)
