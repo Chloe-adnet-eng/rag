@@ -7,6 +7,7 @@ install:
 	pyenv local myfirstrag
 	# Running poetry install inside a Make command requires a VIRTUAL_ENV variable
 	VIRTUAL_ENV=$$(pyenv prefix) poetry install --no-root --sync
+	poetry run pre-commit install
 
 ########################################################################################################################
 # Quality checks
@@ -29,3 +30,16 @@ lint-fix:
 
 type-check:
 	poetry run mypy src
+
+########################################################################################################################
+# Pre-commit hooks
+########################################################################################################################
+
+pre-commit-install:
+	poetry run pre-commit install
+
+pre-commit-run:
+	poetry run pre-commit run --all-files
+
+pre-commit-uninstall:
+	poetry run pre-commit uninstall

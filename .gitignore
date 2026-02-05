@@ -6,3 +6,4 @@ qdrant_storage/
 src/__pycache__/
 tests-results.xml
 coverage.xml
+.env

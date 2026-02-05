@@ -1,0 +1,40 @@
+repos:
+  # Ruff - Code formatting et linting
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.1.5
+  hooks:
+  - id: ruff
+    name: ruff check
+    args: [--fix, --unsafe-fixes]
+    stages: [commit]
+  - id: ruff-format
+    name: ruff format
+    stages: [commit]
+
+  # General checks
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.4.0
+  hooks:
+  - id: trailing-whitespace
+    name: trim trailing whitespace
+  - id: end-of-file-fixer
+    name: fix end of file
+  - id: check-yaml
+    name: check yaml syntax
+  - id: check-json
+    name: check json syntax
+  - id: check-merge-conflict
+    name: check merge conflicts
+  - id: check-added-large-files
+    name: check large files
+    args: [--maxkb=1000]
+  - id: detect-private-key
+    name: detect private keys
+
+  # YAML formatting
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.9.0
+  hooks:
+  - id: pretty-format-yaml
+    name: format yaml
+    args: [--autofix]

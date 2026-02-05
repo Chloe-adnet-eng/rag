@@ -3,7 +3,7 @@
 
 ## 1 Project requirements
 
-### Fill your .env with the followings variables 
+### Fill your .env with the followings variables
 
 - OPENAI_API_KEY
 
@@ -36,9 +36,9 @@ make install
 poetry run pre-commit install
 ```
 
-## Initiate project 
+## Initiate project
 
-### Create docker image for qdrant collection 
+### Create docker image for qdrant collection
 
 ```bash
 docker run -p 6333:6333 -p 6334:6334 \
@@ -48,8 +48,8 @@ docker run -p 6333:6333 -p 6334:6334 \
 
 ### 3 Launch rag
 
-1. Create qdrant vectorial collection named `math_report` and fill it with pdf embeded informations 
-2. Launch rag with open ai client 
+1. Create qdrant vectorial collection named `math_report` and fill it with pdf embeded informations
+2. Launch rag with open ai client
 
 ```bash
 python main.py

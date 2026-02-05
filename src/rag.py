@@ -1,27 +1,27 @@
+"""Module for RAG (Retrieval-Augmented Generation) assistant."""
+
 from openai import OpenAI
 from qdrant_client import QdrantClient
+
 
 class RagAssistant:
     """A class to represent a RAG assistant."""
 
     def __init__(
-        
         self,
         openai_client: OpenAI,
         qdrant_client: QdrantClient,
-        collection_name:str, 
-        top_k_vectors:int
-        
+        collection_name: str,
+        top_k_vectors: int,
     ):
         """Initialize the assistant."""
-        
         self.openai_client = openai_client
         self.qdrant_client = qdrant_client
         self.collection_name = collection_name
         self.top_k_vectors = top_k_vectors
         self.model = "gpt-3.5-turbo"
 
-    def retrieve(self, query: str, embedding_model:str) -> list[str]:
+    def retrieve(self, query: str, embedding_model: str) -> list[str]:
         """Retrieve the top k vectors related to the given question from a Qdrant DB."""
         embedded_query = (
             self.openai_client.embeddings.create(
@@ -31,7 +31,7 @@ class RagAssistant:
             .data[0]
             .embedding
         )
-        
+
         query_results = self.qdrant_client.search(
             collection_name=self.collection_name,
             query_vector=embedded_query,
@@ -44,7 +44,7 @@ class RagAssistant:
         ]
 
     def generate_answer(self, query: str, context_chunks: list[str]) -> str | None:
-        """Generate an answer to a question using OpenAI API with added context base on a Qdrant DB."""
+        """Generate an answer to a question using OpenAI API with Qdrant context."""
         context = "\n".join(context_chunks)
         response = self.openai_client.chat.completions.create(
             model=self.model,
@@ -65,33 +65,36 @@ class RagAssistant:
         )
         return response.choices[0].message.content
 
-    def query(self, query: str, embedding_model:str) -> str | None:
+    def query(self, query: str, embedding_model: str) -> str | None:
         """Query the assistant."""
         context_chunks = self.retrieve(query, embedding_model)
         answer = self.generate_answer(query, context_chunks)
         return answer
 
+
 def start_rag(
-    qdrant_client: QdrantClient, 
-    embedding_model:str,
-    openai_client: OpenAI, 
-    collection_name:str, 
-    top_k_vectors:int
-    ) -> None:
-    
-    rag = RagAssistant(
-        openai_client, 
-        qdrant_client, 
-        collection_name,
-        top_k_vectors
-    )
+    qdrant_client: QdrantClient,
+    embedding_model: str,
+    openai_client: OpenAI,
+    collection_name: str,
+    top_k_vectors: int,
+) -> None:
+    """Start the RAG assistant.
+
+    Args:
+        qdrant_client: Qdrant client instance.
+        embedding_model: Name of the embedding model to use.
+        openai_client: OpenAI client instance.
+        collection_name: Name of the Qdrant collection.
+        top_k_vectors: Number of top vectors to retrieve.
+    """
+    rag = RagAssistant(openai_client, qdrant_client, collection_name, top_k_vectors)
 
     while True:
         user_query = input("Posez votre question (ou tapez 'exit' pour quitter) : ")
-        if user_query.lower() == 'exit':
+        if user_query.lower() == "exit":
             print("Au revoir!")
             break
 
         answer = rag.query(user_query, embedding_model)
         print(f"Réponse: {answer}")
-
